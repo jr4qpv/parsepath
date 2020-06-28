@@ -1,0 +1,8 @@
+sample
+
+# For GCC project
+*.o
+
+# For Doxygen
+html/
+latex/
