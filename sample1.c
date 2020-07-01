@@ -8,6 +8,9 @@ int main(int argc, char *argv[])
   char *dname, *bname;
   char dir[SZ_PATH_MAX], base[SZ_PATH_MAX];
   int flg;
+
+  if (argc > 1)
+    inpath = argv[1];
   
   flg = _parsepath(inpath, &dname, &bname, NULL);
   if (flg & FLG_DIRNAME) {             /* dirname要素あり ? */

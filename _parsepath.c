@@ -2,7 +2,7 @@
  * @file   _parsepath.c
  * @brief  Parse a file elements from a string.
  * @author T.Yokobayashi de JR4QPV
- * @date   2020/06/28
+ * @date   2020/07/01
  */
 
 #include <string.h>			/* for strlen,strrchr */
@@ -24,15 +24,17 @@
  *  - pathの内容は変更しない非破壊で、各要素の開始位置のポインタを返す。\n
  *    各要素は、解析結果のポインタ位置から抽出する。
  *  - 各要素は以下で抽出できる。\n
- *    　ディレクトリ名：*dirpos ～ *basepos (最後は必ず'/') \n
+ *    　ディレクトリ名：*dirpos ～ *basepos (通常は'/'で終わる)\n
  *    　ベース名：      *basepos 以降 \n
  *    　ファイル名：    *basepos ～ *extpos \n
  *    　拡張子：        *extpos 以降 ('.'で始まる)
  *
+ * @note
+ *  - "."と".."はドライブ名に判断し、この時は'/'で終わらない。
  * @attention
  *  - マルチバイト文字には非対応。(UTF-8ならたぶん大丈夫)
  *****************************************************************************
-*/
+ */
 int _parsepath(const char *path, char **dirpos, char **basepos, char **extpos)
 {
 	int n, flg;
@@ -47,7 +49,7 @@ int _parsepath(const char *path, char **dirpos, char **basepos, char **extpos)
 	flg = 0;
 
 	/* ディレクトリ名の有無チェック */
-	if ((p = strrchr(path, '/')) != NULL) {
+	if ((p = strrchr(dname, '/')) != NULL) {
 		/* dirname要素あり */
 		bname = p+1;
 		flg |= FLG_DIRNAME;
@@ -55,6 +57,12 @@ int _parsepath(const char *path, char **dirpos, char **basepos, char **extpos)
 		/* 絶対パス名かチェック */
 		if (dname[0] == '/')				/* '/'で始まるか ? */
 			flg |= FLG_ABSPATH;
+	}
+	else if ((strcmp(dname, ".") == 0) || (strcmp(dname, "..") == 0)) {
+		/* dirname要素あり */
+		n = strlen(dname);
+		bname = &dname[n];
+		flg |= FLG_DIRNAME;
 	}
 
 	/* ベース名の有無チェック */
